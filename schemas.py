@@ -12,9 +12,9 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 
-# Example schemas (replace with your own):
+# Example schemas (you can keep or ignore if not used by your app)
 
 class User(BaseModel):
     """
@@ -38,11 +38,30 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Bakery app schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class BakeryItem(BaseModel):
+    """
+    Bakery items available for sale
+    Collection name: "bakeryitem"
+    """
+    name: str = Field(..., description="Item name, e.g., Croissant")
+    description: Optional[str] = Field(None, description="Short description of the item")
+    price: float = Field(..., ge=0, description="Price in dollars")
+    category: str = Field(..., description="Category, e.g., Bread, Pastry, Cake, Cookie")
+    image_url: Optional[str] = Field(None, description="Image URL")
+    is_available: bool = Field(True, description="Whether this item is currently available")
+
+class OrderItem(BaseModel):
+    item_id: str = Field(..., description="ID of the bakery item")
+    quantity: int = Field(..., ge=1, description="Quantity ordered")
+
+class Order(BaseModel):
+    """
+    Customer orders
+    Collection name: "order"
+    """
+    customer_name: str = Field(..., description="Customer full name")
+    customer_phone: str = Field(..., description="Contact phone number")
+    items: List[OrderItem] = Field(..., description="List of items in the order")
+    notes: Optional[str] = Field(None, description="Special instructions or notes")
